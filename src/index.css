@@ -1,0 +1,106 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --color-primary: #0066A2;
+  --color-primary-dark: #004d7a;
+  --color-accent-purple: #8e44ad;
+  --color-accent-teal: #00a8a8;
+  --color-accent-pink: #d63384;
+  --color-accent-orange: #f39c12;
+  --color-dark-bg: #00436a;
+  --color-dark-surface: #005a92;
+}
+
+@layer base {
+  body {
+    @apply font-sans antialiased bg-white text-slate-900 transition-colors duration-500 overflow-x-hidden;
+  }
+  
+  .dark body {
+    @apply bg-[#050810] text-slate-100;
+  }
+}
+
+/* Glassmorphism Utilities */
+@utility glass-card {
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.02);
+}
+
+.dark .glass-card {
+  background-color: rgba(15, 20, 35, 0.4);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+}
+
+@utility glass-nav {
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+}
+
+.dark .glass-nav {
+  background-color: rgba(10, 15, 30, 0.8);
+  backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.4);
+}
+
+@utility modern-card {
+  @apply glass-card p-6 rounded-[2.5rem] transition-all duration-500 overflow-hidden;
+}
+
+.modern-card:hover {
+  @apply border-primary/20 shadow-primary/5;
+}
+
+@utility input-glass {
+  @apply bg-slate-100/50 border border-slate-200/20 transition-all rounded-[1.5rem] backdrop-blur-sm;
+}
+
+.input-glass:focus {
+  @apply bg-white ring-4 ring-primary/10 border-primary/30 outline-none;
+}
+
+.dark .input-glass {
+  @apply bg-slate-800/20 text-white border-white/5;
+}
+
+.dark .input-glass:focus {
+  @apply bg-slate-800/40 ring-4 ring-primary/20 border-primary/40;
+}
+
+@utility action-pill {
+  @apply px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border transition-all duration-300;
+}
+
+@utility action-pill-active {
+  @apply bg-[#00436a] text-white border-[#00436a];
+}
+
+@utility action-pill-inactive {
+  @apply bg-white text-[#0066A2] border-[#0066A2] hover:bg-slate-50;
+}
+
+@utility nav-circle {
+  @apply w-12 h-12 rounded-full bg-white flex items-center justify-center text-primary shadow-lg border border-slate-100 transition-all duration-300;
+}
+
+@utility nav-circle-active {
+  @apply scale-110 shadow-primary/30 ring-4 ring-primary/20;
+}
+
+.dark .bg-mesh {
+  background-image: 
+    radial-gradient(at 0% 0%, hsla(238,71%,40%,0.08) 0, transparent 50%), 
+    radial-gradient(at 100% 0%, hsla(260,100%,40%,0.05) 0, transparent 50%);
+}
+

@@ -1,0 +1,6 @@
+{
+  "name": "FinTrack Modern",
+  "description": "A mobile-friendly personal finance manager with Google Sheets integration, AI-powered daily food menus, and detailed budget tracking.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
