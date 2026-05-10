@@ -35,9 +35,9 @@ class SheetsService {
   async init() {
     if (this.doc) return;
     
-    const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL?.trim();
-    const rawKey = process.env.GOOGLE_PRIVATE_KEY?.trim();
-    let sheetId = process.env.GOOGLE_SHEET_ID?.trim();
+    const email = (process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || '').trim();
+    const rawKey = (process.env.GOOGLE_PRIVATE_KEY || process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY || '').trim();
+    let sheetId = (process.env.GOOGLE_SHEET_ID || process.env.GOOGLE_SHEETS_ID || '').trim();
 
     // Handle full URL if provided instead of just the ID
     if (sheetId && sheetId.includes('spreadsheets/d/')) {
@@ -45,13 +45,18 @@ class SheetsService {
     }
 
     if (!email || !rawKey || !sheetId) {
-      console.warn('Google Sheets configuration missing. Running in DEMO MODE (In-Memory).');
+      const missing = [];
+      if (!email) missing.push('GOOGLE_SERVICE_ACCOUNT_EMAIL');
+      if (!rawKey) missing.push('GOOGLE_PRIVATE_KEY');
+      if (!sheetId) missing.push('GOOGLE_SHEET_ID');
+      
+      console.warn(`Google Sheets configuration missing (${missing.join(', ')}). Running in DEMO MODE.`);
       this.isDemoMode = true;
       return;
     }
 
     // Clean up the private key (handle escaped newlines and potential quotes)
-    const key = rawKey.replace(/\\n/g, '\n').replace(/^"(.*)"$/, '$1');
+    const key = rawKey.replace(/\\n/g, '\n').replace(/^"(.*)"$/, '$1').replace(/^'(.*)'$/, '$1');
 
     try {
       console.log('Attempting to connect to Google Sheets...');
@@ -209,6 +214,24 @@ async function startServer() {
 
   app.get('/api/auth/me', authenticateToken, (req: any, res) => {
     res.json({ user: req.user, isDemo: sheets.isDemoMode });
+  });
+
+  // --- Diagnostics ---
+  app.get('/api/debug/sheets', async (req, res) => {
+    try {
+      await sheets.init();
+      res.json({
+        isDemoMode: sheets.isDemoMode,
+        configPresent: {
+          email: !!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+          key: !!(process.env.GOOGLE_PRIVATE_KEY || process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY),
+          sheetId: !!(process.env.GOOGLE_SHEET_ID || process.env.GOOGLE_SHEETS_ID)
+        },
+        sheetTitle: (sheets as any).doc?.title || 'Not Connected'
+      });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
   });
 
   // --- Finance Routes ---
