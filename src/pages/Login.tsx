@@ -54,8 +54,8 @@ export default function Login() {
     <div className="min-h-screen bg-slate-50 dark:bg-[#050810] flex flex-col items-center justify-center p-6 relative overflow-hidden transition-colors duration-500">
       {/* Dynamic Background Mesh */}
       <div className="absolute inset-0 bg-mesh opacity-50"></div>
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] -mr-40 -mt-40"></div>
-      <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-emerald-500/5 rounded-full blur-[100px] -ml-20 -mb-20"></div>
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-none blur-[120px] -mr-40 -mt-40"></div>
+      <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-emerald-500/5 rounded-none blur-[100px] -ml-20 -mb-20"></div>
 
       <motion.div 
         initial={{ opacity: 0, y: 30 }}
@@ -64,7 +64,7 @@ export default function Login() {
         className="w-full max-w-md relative z-10"
       >
         <div className="flex flex-col items-center justify-center gap-6 mb-12">
-          <div className="w-20 h-20 bg-primary rounded-[2.5rem] flex items-center justify-center shadow-3xl shadow-primary/40 rotate-12 hover:rotate-0 transition-transform duration-700 group">
+          <div className="w-20 h-20 bg-primary rounded-none flex items-center justify-center shadow-3xl shadow-primary/40 rotate-12 hover:rotate-0 transition-transform duration-700 group">
             <BarChart3 className="text-white w-10 h-10 group-hover:scale-110 transition-transform" />
           </div>
           <div className="text-center">
@@ -73,7 +73,7 @@ export default function Login() {
           </div>
         </div>
 
-        <div className="modern-card p-10 border border-white/40 dark:border-white/5 !rounded-[3rem] shadow-4xl backdrop-blur-3xl">
+        <div className="modern-card p-10 border border-white/40 dark:border-white/5 !rounded-none shadow-4xl backdrop-blur-3xl">
           <div className="mb-10 text-center">
             <h2 className="text-2xl font-black text-slate-900 dark:text-white leading-tight">
               {isLogin ? 'Selamat Datang' : 'Mulai Sekarang'}
@@ -87,9 +87,9 @@ export default function Login() {
             <motion.div 
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="bg-rose-500/10 text-rose-500 p-4 rounded-2xl text-[10px] font-black uppercase tracking-wider mb-8 border border-rose-500/20 flex items-center gap-3"
+              className="bg-rose-500/10 text-rose-500 p-4 rounded-none text-[10px] font-black uppercase tracking-wider mb-8 border border-rose-500/20 flex items-center gap-3"
             >
-              <div className="w-2 h-2 bg-rose-500 rounded-full animate-pulse"></div>
+              <div className="w-2 h-2 bg-rose-500 rounded-none animate-pulse"></div>
               {error}
             </motion.div>
           )}
@@ -142,7 +142,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-primary text-white py-5 rounded-[2rem] font-black uppercase tracking-widest text-[10px] shadow-3xl shadow-primary/40 hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-3 mt-6 border-4 border-white/20"
+              className="w-full bg-primary text-white py-5 rounded-none font-black uppercase tracking-widest text-[10px] shadow-3xl shadow-primary/40 hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-3 mt-6 border-4 border-white/20"
             >
               {loading ? (
                 <Loader2 className="animate-spin" />

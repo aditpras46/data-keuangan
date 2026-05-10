@@ -117,8 +117,21 @@ class SheetsService {
 
     const required = ['Users', 'Pemasukan', 'Pengeluaran', 'Alokasi', 'Laporan', 'Profile'];
     for (const title of required) {
+      const headers = this.getHeaders(title);
       if (!this.doc.sheetsByTitle[title]) {
-        await this.doc.addSheet({ title, headerValues: this.getHeaders(title) });
+        await this.doc.addSheet({ title, headerValues: headers });
+      } else {
+        // Ensure all required headers are present
+        const sheet = this.doc.sheetsByTitle[title];
+        await sheet.loadHeaderRow();
+        const existingHeaders = sheet.headerValues;
+        const missingHeaders = headers.filter(h => !existingHeaders.includes(h));
+        
+        if (missingHeaders.length > 0) {
+          console.log(`Adding missing headers to ${title}:`, missingHeaders);
+          const newHeaders = [...existingHeaders, ...missingHeaders];
+          await sheet.setHeaderRow(newHeaders);
+        }
       }
     }
   }
@@ -130,7 +143,7 @@ class SheetsService {
       case 'Pengeluaran': return ['id', 'userId', 'date', 'amount', 'category', 'note'];
       case 'Alokasi': return ['userId', 'category', 'amount', 'month'];
       case 'Laporan': return ['userId', 'month', 'totalIncome', 'totalExpense', 'balance'];
-      case 'Profile': return ['userId', 'email', 'dana', 'ovo', 'seabank', 'bca', 'updatedAt'];
+      case 'Profile': return ['userId', 'email', 'dana', 'ovo', 'seabank', 'bca', 'avatarUrl', 'updatedAt'];
       default: return [];
     }
   }
@@ -212,8 +225,20 @@ async function startServer() {
     res.json({ message: 'Logged out' });
   });
 
-  app.get('/api/auth/me', authenticateToken, (req: any, res) => {
-    res.json({ user: req.user, isDemo: sheets.isDemoMode });
+  app.get('/api/auth/me', authenticateToken, async (req: any, res) => {
+    try {
+      const rows = await sheets.getRows('Profile');
+      const profile = rows.find((r: any) => (typeof r.get === 'function' ? r.get('userId') : r.userId) === req.user.id);
+      
+      const userWithProfile = {
+        ...req.user,
+        avatarUrl: profile ? (typeof profile.get === 'function' ? profile.get('avatarUrl') : profile.avatarUrl) : null
+      };
+      
+      res.json({ user: userWithProfile, isDemo: sheets.isDemoMode });
+    } catch (err) {
+      res.json({ user: req.user, isDemo: sheets.isDemoMode });
+    }
   });
 
   // --- Diagnostics ---
@@ -264,7 +289,7 @@ async function startServer() {
       const totalIncome = pRows.reduce((sum: number, r: any) => sum + Number(typeof r.get === 'function' ? r.get('amount') : r.amount), 0);
       const totalExpense = eRows.reduce((sum: number, r: any) => sum + Number(typeof r.get === 'function' ? r.get('amount') : r.amount), 0);
 
-      const categories = ['Makan', 'Kebutuhan', 'Tabungan', 'Dana Darurat', 'Dana Hiburan'];
+      const categories = ['Makan', 'Kebutuhan', 'Tabungan', 'Dana Darurat', 'Hiburan'];
       const allocations = categories.map(cat => {
         const allocated = aRows.find((r: any) => (typeof r.get === 'function' ? r.get('category') : r.category) === cat);
         const spent = eRows.filter((r: any) => (typeof r.get === 'function' ? r.get('category') : r.category) === cat)
@@ -334,7 +359,7 @@ async function startServer() {
       const totalIncome = pRows.reduce((sum: number, r: any) => sum + Number(typeof r.get === 'function' ? r.get('amount') : r.amount), 0);
       const totalExpense = eRows.reduce((sum: number, r: any) => sum + Number(typeof r.get === 'function' ? r.get('amount') : r.amount), 0);
 
-      const categories = ['Makan', 'Kebutuhan', 'Tabungan', 'Dana Darurat', 'Dana Hiburan'];
+      const categories = ['Makan', 'Kebutuhan', 'Tabungan', 'Dana Darurat', 'Hiburan'];
       const allocations = categories.map(cat => {
         const allocated = aRows.find((r: any) => (typeof r.get === 'function' ? r.get('category') : r.category) === cat);
         const spent = eRows.filter((r: any) => (typeof r.get === 'function' ? r.get('category') : r.category) === cat)
@@ -372,13 +397,13 @@ async function startServer() {
 
       const currentMonth = date.substring(0, 7);
       
-      // Budget Allocation Logic (50/20/10/10/10 split)
+      // Budget Allocation Logic (40/30/10/10/10 split)
       const shares = { 
-        'Makan': 0.5, 
-        'Kebutuhan': 0.2, 
+        'Makan': 0.4, 
+        'Kebutuhan': 0.3, 
         'Tabungan': 0.1, 
         'Dana Darurat': 0.1, 
-        'Dana Hiburan': 0.1 
+        'Hiburan': 0.1 
       };
 
       const monthsToAllocate = isSalary ? 2 : 1;
@@ -491,9 +516,10 @@ async function startServer() {
           ovo: typeof profile.get === 'function' ? profile.get('ovo') : profile.ovo,
           seabank: typeof profile.get === 'function' ? profile.get('seabank') : profile.seabank,
           bca: typeof profile.get === 'function' ? profile.get('bca') : profile.bca,
+          avatarUrl: typeof profile.get === 'function' ? profile.get('avatarUrl') : profile.avatarUrl,
         });
       } else {
-        res.json({ email: req.user.email, dana: '', ovo: '', seabank: '', bca: '' });
+        res.json({ email: req.user.email, dana: '', ovo: '', seabank: '', bca: '', avatarUrl: '' });
       }
     } catch (err) {
       res.status(500).json({ error: (err as Error).message });
@@ -502,31 +528,43 @@ async function startServer() {
 
   app.post('/api/profile', authenticateToken, async (req: any, res) => {
     const userId = req.user.id;
-    const { dana, ovo, seabank, bca } = req.body;
+    const email = req.user.email;
+    const { dana, ovo, seabank, bca, avatarUrl } = req.body;
     try {
+      // Ensure headers are up to date before setting values
+      await sheets.ensureSheets();
+      
       const rows = await sheets.getRows('Profile');
       let profile = rows.find((r: any) => (typeof r.get === 'function' ? r.get('userId') : r.userId) === userId);
       
       const updateData = {
         userId,
-        email: req.user.email,
+        email,
         dana,
         ovo,
         seabank,
         bca,
+        avatarUrl: avatarUrl || '',
         updatedAt: new Date().toISOString()
       };
 
       if (profile) {
         if (typeof profile.set === 'function') {
+          // Double check headers on the sheet itself
+          const sheet = profile._sheet;
+          if (sheet) {
+            await sheet.loadHeaderRow();
+          }
+          
+          profile.set('email', email);
           profile.set('dana', dana);
           profile.set('ovo', ovo);
           profile.set('seabank', seabank);
           profile.set('bca', bca);
+          profile.set('avatarUrl', updateData.avatarUrl);
           profile.set('updatedAt', updateData.updatedAt);
           await profile.save();
         } else {
-          // Manual update for mockDb
           Object.assign(profile, updateData);
         }
       } else {
@@ -534,6 +572,7 @@ async function startServer() {
       }
       res.json({ message: 'Profil berhasil diperbarui' });
     } catch (err) {
+      console.error('SERVER ERROR (Profile Update):', err);
       res.status(500).json({ error: (err as Error).message });
     }
   });

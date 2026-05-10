@@ -47,7 +47,7 @@ export default function InputPage() {
     }
   };
 
-  const categories = ['Makan', 'Kebutuhan', 'Tabungan', 'Dana Darurat', 'Dana Hiburan'];
+  const categories = ['Makan', 'Kebutuhan', 'Tabungan', 'Dana Darurat', 'Hiburan'];
 
   if (success) {
     return (
@@ -55,7 +55,7 @@ export default function InputPage() {
         <motion.div 
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          className="w-20 h-20 bg-emerald-100 text-emerald-500 rounded-full flex items-center justify-center"
+          className="w-20 h-20 bg-emerald-100 text-emerald-500 rounded-none flex items-center justify-center"
         >
           <CheckCircle2 size={40} />
         </motion.div>
@@ -67,11 +67,11 @@ export default function InputPage() {
 
   return (
     <div className="space-y-6 pb-12 animate-in fade-in duration-700">
-      <div className="flex bg-slate-100 dark:bg-white/5 p-1.5 rounded-[2rem] border border-slate-200 dark:border-white/5 backdrop-blur-md">
+      <div className="flex bg-slate-100 dark:bg-white/5 p-1.5 rounded-none border border-slate-200 dark:border-white/5 backdrop-blur-md">
         <button 
           onClick={() => setType('expense')}
           className={cn(
-            "flex-1 py-4 px-4 rounded-[1.5rem] font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all duration-500",
+            "flex-1 py-4 px-4 rounded-none font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all duration-500",
             type === 'expense' ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xl" : "text-slate-400 dark:text-slate-500"
           )}
         >
@@ -80,7 +80,7 @@ export default function InputPage() {
         <button 
           onClick={() => setType('income')}
           className={cn(
-            "flex-1 py-4 px-4 rounded-[1.5rem] font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all duration-500",
+            "flex-1 py-4 px-4 rounded-none font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all duration-500",
             type === 'income' ? "bg-primary text-white shadow-xl shadow-primary/20" : "text-slate-400 dark:text-slate-500"
           )}
         >
@@ -103,7 +103,7 @@ export default function InputPage() {
                 type="number"
                 required
                 placeholder="0"
-                className="w-full pl-16 pr-6 py-6 bg-slate-50 dark:bg-slate-900/40 rounded-[2rem] border border-slate-200 dark:border-white/5 transition-all text-3xl font-black placeholder:text-slate-200 dark:placeholder:text-slate-800 text-slate-900 dark:text-white focus:ring-4 focus:ring-primary/10 outline-none"
+                className="w-full pl-16 pr-6 py-6 bg-slate-50 dark:bg-slate-900/40 rounded-none border border-slate-200 dark:border-white/5 transition-all text-3xl font-black placeholder:text-slate-200 dark:placeholder:text-slate-800 text-slate-900 dark:text-white focus:ring-4 focus:ring-primary/10 outline-none"
                 value={formData.amount}
                 onChange={e => setFormData({ ...formData, amount: e.target.value })}
               />
@@ -170,7 +170,7 @@ export default function InputPage() {
             </div>
           </div>
 
-          <div className="bg-primary/5 dark:bg-white/5 rounded-3xl p-5 flex gap-4 border border-primary/10 dark:border-white/5">
+          <div className="bg-primary/5 dark:bg-white/5 rounded-none p-5 flex gap-4 border border-primary/10 dark:border-white/5">
             <Info className="text-primary shrink-0" size={20} />
             <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold leading-relaxed uppercase tracking-tight">
               {type === 'income' 
@@ -183,7 +183,7 @@ export default function InputPage() {
             type="submit"
             disabled={loading}
             className={cn(
-              "w-full py-6 rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] shadow-2xl transition-all active:scale-95 flex items-center justify-center gap-3 border-4 border-white/20 dark:border-black/20",
+              "w-full py-6 rounded-none font-black text-xs uppercase tracking-[0.2em] shadow-2xl transition-all active:scale-95 flex items-center justify-center gap-3 border-4 border-white/20 dark:border-black/20",
               type === 'income' ? "bg-primary text-white shadow-primary/30" : "bg-slate-900 dark:bg-white text-white dark:text-slate-900"
             )}
           >
